@@ -1,0 +1,9 @@
+[build]
+  publish = "/"
+  functions = "netlify/functions"
+  command = "node netlify/functions/fetch-submissions.js"
+
+[build.environment]
+  NETLIFY_API_TOKEN = "your_netlify_api_token"
+  NETLIFY_SITE_ID = "your_netlify_site_id"
+  NETLIFY_FORM_ID = "your_netlify_form_id"
