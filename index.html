@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -45,9 +6,7 @@
   <title>MASS ACADEMY +2 CRASH COURSE APPLICATION FORM</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
       font-family: 'Roboto', sans-serif;
       background: linear-gradient(135deg, #f0f4f8, #dff9fb);
@@ -58,11 +17,7 @@
       align-items: center;
       min-height: 100vh;
     }
-    .form-wrapper {
-      width: 100%;
-      max-width: 600px;
-      padding: 20px;
-    }
+    .form-wrapper { width: 100%; max-width: 600px; padding: 20px; }
     .form-container {
       background: #ffffff;
       border-radius: 16px;
@@ -75,20 +30,13 @@
       transform: translateY(-5px);
       box-shadow: 0 16px 32px rgba(0,0,0,0.15);
     }
-    .form-header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
+    .form-header { text-align: center; margin-bottom: 30px; }
     .form-header img {
       max-width: 100px;
       margin-bottom: 10px;
       border-radius: 12px;
     }
-    .form-header h1 {
-      font-size: 1.6em;
-      color: #273c75;
-      margin: 0;
-    }
+    .form-header h1 { font-size: 1.6em; color: #273c75; margin: 0; }
     label {
       display: block;
       margin-top: 20px;
@@ -153,15 +101,8 @@
       width: 90%;
       position: relative;
     }
-    .preview-content h2 {
-      font-size: 1.5em;
-      color: #273c75;
-      margin-top: 0;
-    }
-    .preview-content p {
-      margin: 10px 0;
-      color: #2f3640;
-    }
+    .preview-content h2 { font-size: 1.5em; color: #273c75; margin-top: 0; }
+    .preview-content p { margin: 10px 0; color: #2f3640; }
     .preview-buttons {
       display: flex;
       gap: 10px;
@@ -181,8 +122,7 @@
         <img src="https://i.postimg.cc/50K6MpN5/Whats-App-Image-2025-05-20-at-7-03-43-PM.jpg" alt="Mass Academy Logo">
         <h1>MASS ACADEMY +2 CRASH COURSE APPLICATION FORM</h1>
       </div>
-      <form id="applicationForm" data-netlify="true" name="application" action="/admin.html">
-        <input type="hidden" name="form-name" value="application">
+      <form id="applicationForm">
         <label for="studentName">NAME OF THE STUDENT</label>
         <input type="text" id="studentName" name="studentName" required>
 
@@ -226,7 +166,6 @@
       formDataToSubmit = new FormData(form);
       const data = Object.fromEntries(formDataToSubmit);
 
-      // Show preview
       document.getElementById('previewStudentName').textContent = data.studentName;
       document.getElementById('previewSchoolName').textContent = data.schoolName;
       document.getElementById('previewCourse').textContent = data.course;
@@ -241,26 +180,29 @@
     }
 
     async function confirmSubmit() {
+      const data = Object.fromEntries(formDataToSubmit.entries());
+
       try {
-        const response = await fetch('/admin.html', {
+        const response = await fetch('/.netlify/functions/save-submission', {
           method: 'POST',
-          body: formDataToSubmit
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
         });
 
         if (response.ok) {
           window.location.href = '/admin.html';
         } else {
-          const errorMessage = document.getElementById('errorMessage');
-          errorMessage.textContent = 'Failed to submit application. Please try again.';
-          errorMessage.style.display = 'block';
-          document.getElementById('previewModal').style.display = 'none';
+          showError('Failed to submit application.');
         }
       } catch (error) {
-        const errorMessage = document.getElementById('errorMessage');
-        errorMessage.textContent = 'Network error. Please check your connection and try again.';
-        errorMessage.style.display = 'block';
-        document.getElementById('previewModal').style.display = 'none';
+        showError('Network error. Please try again.');
       }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('errorMessage');
+      el.textContent = msg;
+      el.style.display = 'block';
     }
   </script>
 </body>
