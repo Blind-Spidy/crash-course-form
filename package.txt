@@ -1,8 +1,0 @@
-{
-  "name": "mass-academy",
-  "version": "1.0.0",
-  "dependencies": {
-    "node-fetch": "^2.6.7",
-    "sanitize-html": "^2.13.0"
-  }
-}
