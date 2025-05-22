@@ -180,14 +180,18 @@
       if (code === "MASS") {
         const updated = allSubmissions.filter(s => s.id !== currentSubmission.id);
         try {
-          await fetch(JSONBIN_URL, {
+          const res = await fetch(JSONBIN_URL, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
               "X-Master-Key": API_KEY,
+              "X-Bin-Versioning": "false"
             },
             body: JSON.stringify(updated),
           });
+
+          if (!res.ok) throw new Error("JSONBin update failed");
+
           document.getElementById("adminCodeModal").style.display = "none";
           document.getElementById("popup").style.display = "none";
           displayStudents();
