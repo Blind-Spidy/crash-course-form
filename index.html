@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MASS ACADEMY +2 CRASH COURSE APPLICATION FORM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #f0f4f8, #dff9fb);
+      margin: 0; padding: 20px;
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh;
+    }
+    .form-wrapper { width: 100%; max-width: 600px; padding: 20px; }
+    .form-container {
+      background: #ffffff; border-radius: 16px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+      padding: 40px 30px; width: 100%;
+    }
+    .form-header { text-align: center; margin-bottom: 30px; }
+    .form-header img { max-width: 100px; margin-bottom: 10px; border-radius: 12px; }
+    .form-header h1 { font-size: 1.6em; color: #273c75; margin: 0; }
+    label { display: block; margin-top: 20px; margin-bottom: 5px; font-weight: 700; color: #2f3640; }
+    input, textarea {
+      width: 100%; padding: 12px;
+      border: 1px solid #dcdde1; border-radius: 10px;
+      font-size: 1em;
+    }
+    input:focus, textarea:focus {
+      border-color: #273c75;
+      box-shadow: 0 0 5px rgba(39, 60, 117, 0.3); outline: none;
+    }
+    button {
+      width: 100%; margin-top: 30px; padding: 14px;
+      background-color: #273c75; color: white;
+      border: none; border-radius: 10px; font-size: 1em;
+      font-weight: bold; cursor: pointer;
+    }
+    button:hover { background-color: #192a56; }
+    .error { color: red; font-size: 0.9em; margin-top: 10px; text-align: center; display: none; }
+    .preview-modal {
+      display: none; position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%; background: rgba(0,0,0,0.5);
+      justify-content: center; align-items: center; z-index: 1000;
+    }
+    .preview-content {
+      background: #ffffff; border-radius: 16px;
+      padding: 30px; max-width: 500px; width: 90%;
+    }
+    .preview-content h2 { font-size: 1.5em; color: #273c75; }
+    .preview-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="form-wrapper">
+    <div class="form-container">
+      <div class="form-header">
+        <img src="https://i.postimg.cc/50K6MpN5/Whats-App-Image-2025-05-20-at-7-03-43-PM.jpg" alt="Mass Academy Logo" />
+        <h1>MASS ACADEMY +2 CRASH COURSE APPLICATION FORM</h1>
+      </div>
+      <form id="applicationForm" name="application">
+        <label for="studentName">NAME OF THE STUDENT</label>
+        <input type="text" id="studentName" name="studentName" required />
+
+        <label for="schoolName">SCHOOL NAME</label>
+        <input type="text" id="schoolName" name="schoolName" required />
+
+        <label for="course">COURSE</label>
+        <input type="text" id="course" name="course" required />
+
+        <label for="failedSubjects">FAILED SUBJECTS</label>
+        <textarea id="failedSubjects" name="failedSubjects" rows="3" placeholder="List failed subjects here..."></textarea>
+
+        <label for="contactNumber">CONTACT NUMBER</label>
+        <input type="tel" id="contactNumber" name="contactNumber" pattern="[0-9]{10}" placeholder="10-digit mobile number" required />
+
+        <button type="submit">Submit Application</button>
+      </form>
+      <div class="error" id="errorMessage"></div>
+    </div>
+  </div>
+
+  <div class="preview-modal" id="previewModal">
+    <div class="preview-content">
+      <h2>Preview Your Application</h2>
+      <p><strong>Student Name:</strong> <span id="previewStudentName"></span></p>
+      <p><strong>School Name:</strong> <span id="previewSchoolName"></span></p>
+      <p><strong>Course:</strong> <span id="previewCourse"></span></p>
+      <p><strong>Failed Subjects:</strong> <span id="previewFailedSubjects"></span></p>
+      <p><strong>Contact Number:</strong> <span id="previewContactNumber"></span></p>
+      <div class="preview-buttons">
+        <button onclick="editForm()">Edit</button>
+        <button onclick="confirmSubmit()">Confirm & Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BIN_ID = "682f872f8a456b7966a3e2fb";
+    const API_KEY = "$2a$10$iF4yx1qsfQxbdkzek42GZugEHcN6K4mesBghl77vRVFIMzjPm8Kr6";
+    const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+    let formDataToSubmit = null;
+
+    document.getElementById("applicationForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+      formDataToSubmit = new FormData(event.target);
+      const data = Object.fromEntries(formDataToSubmit.entries());
+      document.getElementById("previewStudentName").textContent = data.studentName;
+      document.getElementById("previewSchoolName").textContent = data.schoolName;
+      document.getElementById("previewCourse").textContent = data.course;
+      document.getElementById("previewFailedSubjects").textContent = data.failedSubjects || "None";
+      document.getElementById("previewContactNumber").textContent = data.contactNumber;
+      document.getElementById("previewModal").style.display = "flex";
+    });
+
+    function editForm() {
+      document.getElementById("previewModal").style.display = "none";
+      formDataToSubmit = null;
+    }
+
+    function generateId() {
+      return "_" + Math.random().toString(36).substr(2, 9);
+    }
+
+    async function confirmSubmit() {
+      try {
+        const submission = Object.fromEntries(formDataToSubmit.entries());
+        submission.id = generateId();
+
+        const getRes = await fetch(JSONBIN_URL + "/latest", {
+          headers: { "X-Master-Key": API_KEY },
+        });
+        const existing = await getRes.json();
+        const submissions = Array.isArray(existing.record) ? existing.record : [];
+        submissions.push(submission);
+
+        const putRes = await fetch(JSONBIN_URL, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Master-Key": API_KEY,
+          },
+          body: JSON.stringify(submissions),
+        });
+
+        if (putRes.ok) {
+          window.location.href = "/admin.html";
+        } else {
+          throw new Error("Failed to update JSONBin");
+        }
+      } catch (error) {
+        document.getElementById("errorMessage").textContent = "Failed to submit. Please try again.";
+        document.getElementById("errorMessage").style.display = "block";
+        document.getElementById("previewModal").style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>
